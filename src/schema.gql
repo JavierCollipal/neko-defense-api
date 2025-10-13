@@ -1,0 +1,120 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  """JWT access token"""
+  access_token: String!
+
+  """User information"""
+  user: UserType!
+}
+
+type DinaPerpType {
+  crimesAccused: [String!]
+  fullName: String!
+  id: String!
+  legalStatus: LegalStatusType
+  legal_status: String
+  major_crimes: [String!]
+  metadata: JSON
+  name: String
+  organization: [String!]
+  position: String
+  prosecution_status: String
+  role: String
+}
+
+type DinaPerpetratorsStatsType {
+  convicted: Int!
+  total: Int!
+  total_known_agents: Int!
+  unprosecuted: Int!
+}
+
+type DinaStatsType {
+  disappeared: Int!
+  executed: Int!
+  international_crimes: Int!
+  last_updated: String!
+  perpetrators: DinaPerpetratorsStatsType!
+  torture_centers: Int!
+  total_documents: Int!
+  victims_estimated: Int!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type LegalStatusType {
+  convicted: Boolean!
+  status: String
+}
+
+input LoginInput {
+  """Password for authentication"""
+  password: String!
+
+  """Username for authentication"""
+  username: String!
+}
+
+type Mutation {
+  """🔐 Login with credentials and receive JWT token, nyaa~!"""
+  login(input: LoginInput!): AuthResponse!
+}
+
+type Query {
+  """🎯 Get all documented DINA perpetrators, desu~!"""
+  dinaPerpetrators: [DinaPerpType!]!
+
+  """📊 Get DINA documentation statistics, nyaa~!"""
+  dinaStats: DinaStatsType!
+
+  """👤 Get current authenticated user info, desu~!"""
+  me: String!
+
+  """🔍 Get specific threat actor by ID, nyaa~!"""
+  threatActor(actorId: String!): ThreatActorType
+
+  """🎯 Get threat actors filtered by category, desu~!"""
+  threatActors(category: String! = "all"): [ThreatActorType!]!
+
+  """📊 Get threat actor counts by category, nyaa~!"""
+  threatCounts: ThreatCountsType!
+}
+
+type ThreatActorType {
+  actor_classification: String
+  actor_id: ID!
+  category: String
+  description: String
+  iocs: [String!]
+  metadata: JSON
+  name: String!
+  network: String
+  rank: Int
+  state_actor: Boolean
+  state_sponsored: Boolean
+  target_type: String
+  techniques: [String!]
+  threat_level: Int
+  type: String
+}
+
+type ThreatCountsType {
+  all: Int!
+  crypto_crime: Int!
+  dina_network: Int!
+  pedophiles: Int!
+  predators: Int!
+  ransomware: Int!
+  state_sponsored: Int!
+}
+
+type UserType {
+  role: String!
+  username: String!
+}
