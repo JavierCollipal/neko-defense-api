@@ -38,6 +38,7 @@
     "graphql": "^16.11.0",
     "graphql-type-json": "^0.3.2",
     "helmet": "^8.1.0",
+    "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1"
@@ -48,8 +49,11 @@
     "@nestjs/testing": "^11.1.6",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.7.2",
     "@types/passport-jwt": "^4.0.1",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.5",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
