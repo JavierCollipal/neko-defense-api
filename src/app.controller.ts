@@ -1,9 +1,10 @@
 // 🐾⚡ NEKO DEFENSE - Main App Controller ⚡🐾
 import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { ThreatActorsService } from './threat-actors/threat-actors.service';
 
 @Controller('api')
 export class AppController {
-  constructor() {
+  constructor(private readonly threatActorsService: ThreatActorsService) {
     console.log('⚡ [AppController] Main dashboard endpoints initialized, nyaa~!');
   }
 
@@ -128,5 +129,35 @@ export class AppController {
       status: 'NEKO DEFENSE API operational, nyaa~! ⚡🐾',
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * 🎯 GET /api/threat-actors
+   * Returns all threat actors from MongoDB
+   */
+  @Get('threat-actors')
+  @HttpCode(HttpStatus.OK)
+  async getThreatActors() {
+    console.log('🎯 [AppController] GET /api/threat-actors');
+
+    try {
+      const threatActors = await this.threatActorsService.getThreatActorsByCategory('all');
+
+      return {
+        success: true,
+        data: threatActors,
+        count: threatActors.length,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('❌ [AppController] Error fetching threat actors:', error);
+      return {
+        success: false,
+        error: error.message,
+        data: [],
+        count: 0,
+        timestamp: new Date().toISOString(),
+      };
+    }
   }
 }
