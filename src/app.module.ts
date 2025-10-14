@@ -8,9 +8,11 @@ import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
 
 // Import custom modules
+import { SecurityModule } from './security/security.module';
 import { AuthModule } from './auth/auth.module';
 import { ThreatActorsModule } from './threat-actors/threat-actors.module';
 import { DinaModule } from './dina/dina.module';
+import { ValechModule } from './valech/valech.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -51,10 +53,14 @@ import { AppController } from './app.controller';
       limit: parseInt(process.env.RATE_LIMIT_MAX) || 100,
     }]),
 
+    // 🛡️ Security Module (2025 AI/ML Protection) - MUST BE FIRST!
+    SecurityModule,
+
     // 🎯 Feature Modules
     AuthModule,
     ThreatActorsModule,
     DinaModule,
+    ValechModule,
   ],
   controllers: [AppController],
 })

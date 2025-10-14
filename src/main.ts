@@ -2,6 +2,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { ThreatDetectionGuard } from './security/threat-detection.guard';
 import helmet from 'helmet';
 
 async function bootstrap() {
@@ -32,6 +33,11 @@ async function bootstrap() {
       transform: true, // Automatically transform payloads to DTO instances
     }),
   );
+
+  // 🤖 AI/ML Threat Detection Guard (2025 Protection!) - Applied to ALL requests
+  const threatGuard = app.get(ThreatDetectionGuard);
+  app.useGlobalGuards(threatGuard);
+  console.log('🛡️ AI/ML Threat Detection ACTIVATED - All requests monitored, nyaa~!');
 
   // 🚀 Start server
   const port = process.env.PORT || 4000;

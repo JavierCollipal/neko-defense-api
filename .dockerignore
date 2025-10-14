@@ -1,0 +1,62 @@
+# 🐾 NEKO DEFENSE API - Docker Ignore, nyaa~!
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Testing
+coverage/
+*.test.ts
+*.spec.ts
+test/
+e2e/
+.nyc_output/
+
+# Development files
+.env.local
+.env.development
+.env.test
+*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.circleci/
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Logs
+logs/
+*.log
+
+# NestJS specific
+nest-cli.json
