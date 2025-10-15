@@ -231,41 +231,67 @@ export class DinaService {
 
   /**
    * 📋 Get all 1,097 DINA agents with pagination
+   * Now supports filtering by unprosecuted status, nyaa~! ⚖️🐾
    * For now, generates mock data based on known structure
    * TODO: Replace with actual 2008 Army List data when available
    */
-  async getAllAgentsPaginated(page: number, limit: number) {
-    console.log(`📋 [DinaService] Fetching all agents - Page ${page}, Limit ${limit}`);
+  async getAllAgentsPaginated(page: number, limit: number, filter?: string) {
+    console.log(`📋 [DinaService] Fetching all agents - Page ${page}, Limit ${limit}, Filter ${filter || 'none'}`);
 
     const TOTAL_KNOWN_AGENTS = 1097; // From 2008 Chilean Army List
-    const skip = (page - 1) * limit;
 
     try {
       // Try to fetch from all available collections
       const comprehensiveCollection = this.connection.collection('dina_agents_comprehensive');
       const allAgentsCollection = this.connection.collection('dina_all_agents');
 
+      // Build query based on filter
+      let query: any = {};
+      if (filter === 'unprosecuted') {
+        // Filter for agents with UNPROSECUTED status or legalStatus.convicted = false
+        query = {
+          $or: [
+            { status: { $regex: 'UNPROSECUTED', $options: 'i' } },
+            { 'legalStatus.convicted': false },
+            { 'legalStatus.convicted': { $exists: false } },
+          ]
+        };
+        console.log('⚖️ [DinaService] Applying UNPROSECUTED filter, nyaa~!');
+      }
+
       // Check if we have a dedicated all_agents collection
-      let agents = await allAgentsCollection.find({})
-        .skip(skip)
-        .limit(limit)
-        .toArray();
+      let agents = await allAgentsCollection.find(query).toArray();
 
       // If no dedicated collection, generate mock data from known structure
       if (agents.length === 0) {
         console.log('⚠️ [DinaService] No all_agents collection found, generating mock data');
-        agents = this.generateMockAgents(skip, limit, TOTAL_KNOWN_AGENTS);
+        const allMockAgents = this.generateMockAgents(0, TOTAL_KNOWN_AGENTS, TOTAL_KNOWN_AGENTS);
+
+        // Apply filter to mock data
+        if (filter === 'unprosecuted') {
+          agents = allMockAgents.filter(agent =>
+            agent.status === 'UNPROSECUTED' ||
+            !agent.legalStatus?.convicted
+          );
+          console.log(`⚖️ [DinaService] Filtered ${agents.length} unprosecuted agents from mock data`);
+        } else {
+          agents = allMockAgents;
+        }
       }
 
-      const totalPages = Math.ceil(TOTAL_KNOWN_AGENTS / limit);
+      // Apply pagination AFTER filtering
+      const totalFiltered = agents.length;
+      const skip = (page - 1) * limit;
+      const paginatedAgents = agents.slice(skip, skip + limit);
+      const totalPages = Math.ceil(totalFiltered / limit);
 
-      console.log(`✅ [DinaService] Retrieved ${agents.length} agents for page ${page}`);
+      console.log(`✅ [DinaService] Retrieved ${paginatedAgents.length} agents for page ${page} (total filtered: ${totalFiltered})`);
 
       return {
-        agents,
+        agents: paginatedAgents,
         currentPage: page,
         pageSize: limit,
-        totalAgents: TOTAL_KNOWN_AGENTS,
+        totalAgents: filter ? totalFiltered : TOTAL_KNOWN_AGENTS,
         totalPages,
         hasNext: page < totalPages,
         hasPrevious: page > 1,

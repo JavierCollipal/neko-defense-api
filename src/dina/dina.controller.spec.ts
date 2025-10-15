@@ -219,7 +219,8 @@ describe('DinaController', () => {
       expect(result.pagination.total_pages).toBe(22);
       expect(result.pagination.has_next).toBe(true);
       expect(result.pagination.has_previous).toBe(false);
-      expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(1, 50);
+      expect(result.filter).toBe('none');
+      expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(1, 50, undefined);
     });
 
     it('should accept custom page and limit parameters', async () => {
@@ -242,7 +243,7 @@ describe('DinaController', () => {
       expect(result.success).toBe(true);
       expect(result.pagination.current_page).toBe(2);
       expect(result.pagination.page_size).toBe(100);
-      expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(2, 100);
+      expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(2, 100, undefined);
     });
 
     it('should handle invalid page/limit parameters', async () => {
@@ -266,7 +267,7 @@ describe('DinaController', () => {
       );
 
       expect(result.success).toBe(true);
-      expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(1, 50);
+      expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(1, 50, undefined);
     });
 
     it('should handle errors gracefully', async () => {
@@ -278,6 +279,136 @@ describe('DinaController', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Failed to fetch paginated agents');
+    });
+
+    // 🐾⚖️ NEW TESTS FOR UNPROSECUTED FILTER! ⚖️🐾
+    describe('Unprosecuted Filter Tests', () => {
+      it('should filter agents by unprosecuted status', async () => {
+        const mockFilteredResult = {
+          agents: [
+            { name: 'Unprosecuted Agent 1', status: 'UNPROSECUTED', legalStatus: { convicted: false } },
+            { name: 'Unprosecuted Agent 2', status: 'UNPROSECUTED', legalStatus: { convicted: false } },
+          ],
+          currentPage: 1,
+          pageSize: 50,
+          totalAgents: 297, // Only unprosecuted count
+          totalPages: 6,
+          hasNext: true,
+          hasPrevious: false,
+        };
+
+        mockDinaService.getAllAgentsPaginated.mockResolvedValue(
+          mockFilteredResult,
+        );
+
+        const result = await controller.getAllAgentsPaginated('1', '50', 'unprosecuted');
+
+        expect(result.success).toBe(true);
+        expect(result.data).toEqual(mockFilteredResult.agents);
+        expect(result.filter).toBe('unprosecuted');
+        expect(result.pagination.total_agents).toBe(297);
+        expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(1, 50, 'unprosecuted');
+      });
+
+      it('should pass filter parameter to service layer', async () => {
+        const mockFilteredResult = {
+          agents: [],
+          currentPage: 1,
+          pageSize: 50,
+          totalAgents: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrevious: false,
+        };
+
+        mockDinaService.getAllAgentsPaginated.mockResolvedValue(
+          mockFilteredResult,
+        );
+
+        await controller.getAllAgentsPaginated('1', '50', 'unprosecuted');
+
+        expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(1, 50, 'unprosecuted');
+      });
+
+      it('should return "none" filter when filter parameter is undefined', async () => {
+        const mockResult = {
+          agents: [],
+          currentPage: 1,
+          pageSize: 50,
+          totalAgents: 1097,
+          totalPages: 22,
+          hasNext: true,
+          hasPrevious: false,
+        };
+
+        mockDinaService.getAllAgentsPaginated.mockResolvedValue(mockResult);
+
+        const result = await controller.getAllAgentsPaginated('1', '50');
+
+        expect(result.filter).toBe('none');
+        expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(1, 50, undefined);
+      });
+
+      it('should handle unprosecuted filter with custom pagination', async () => {
+        const mockFilteredResult = {
+          agents: [
+            { name: 'Unprosecuted Agent 101', status: 'UNPROSECUTED' },
+          ],
+          currentPage: 3,
+          pageSize: 100,
+          totalAgents: 297,
+          totalPages: 3,
+          hasNext: false,
+          hasPrevious: true,
+        };
+
+        mockDinaService.getAllAgentsPaginated.mockResolvedValue(
+          mockFilteredResult,
+        );
+
+        const result = await controller.getAllAgentsPaginated('3', '100', 'unprosecuted');
+
+        expect(result.success).toBe(true);
+        expect(result.filter).toBe('unprosecuted');
+        expect(result.pagination.current_page).toBe(3);
+        expect(result.pagination.page_size).toBe(100);
+        expect(result.pagination.total_agents).toBe(297);
+        expect(dinaService.getAllAgentsPaginated).toHaveBeenCalledWith(3, 100, 'unprosecuted');
+      });
+
+      it('should return empty array when no unprosecuted agents found', async () => {
+        const mockEmptyResult = {
+          agents: [],
+          currentPage: 1,
+          pageSize: 50,
+          totalAgents: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrevious: false,
+        };
+
+        mockDinaService.getAllAgentsPaginated.mockResolvedValue(
+          mockEmptyResult,
+        );
+
+        const result = await controller.getAllAgentsPaginated('1', '50', 'unprosecuted');
+
+        expect(result.success).toBe(true);
+        expect(result.data).toEqual([]);
+        expect(result.filter).toBe('unprosecuted');
+        expect(result.pagination.total_agents).toBe(0);
+      });
+
+      it('should handle errors when filtering unprosecuted agents', async () => {
+        mockDinaService.getAllAgentsPaginated.mockRejectedValue(
+          new Error('Filter error'),
+        );
+
+        const result = await controller.getAllAgentsPaginated('1', '50', 'unprosecuted');
+
+        expect(result.success).toBe(false);
+        expect(result.error).toBe('Failed to fetch paginated agents');
+      });
     });
   });
 

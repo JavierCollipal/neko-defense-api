@@ -147,22 +147,24 @@ export class DinaController {
   }
 
   /**
-   * 📋 GET /api/dina/all-agents?page=1&limit=50
+   * 📋 GET /api/dina/all-agents?page=1&limit=50&filter=unprosecuted
    * Returns paginated list of all 1,097 known DINA agents
+   * Now supports filtering by unprosecuted status, nyaa~! ⚖️🐾
    */
   @Get('all-agents')
   @HttpCode(HttpStatus.OK)
   async getAllAgentsPaginated(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '50',
+    @Query('filter') filter?: string,
   ) {
     const pageNum = parseInt(page, 10) || 1;
     const limitNum = parseInt(limit, 10) || 50;
 
-    console.log(`📋 [DinaController] GET /api/dina/all-agents?page=${pageNum}&limit=${limitNum}`);
+    console.log(`📋 [DinaController] GET /api/dina/all-agents?page=${pageNum}&limit=${limitNum}&filter=${filter || 'none'}`);
 
     try {
-      const result = await this.dinaService.getAllAgentsPaginated(pageNum, limitNum);
+      const result = await this.dinaService.getAllAgentsPaginated(pageNum, limitNum, filter);
 
       return {
         success: true,
@@ -175,6 +177,7 @@ export class DinaController {
           has_next: result.hasNext,
           has_previous: result.hasPrevious,
         },
+        filter: filter || 'none',
         timestamp: new Date().toISOString()
       };
     } catch (error) {
