@@ -8,6 +8,12 @@ export class UserType {
 
   @Field(() => String)
   role: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: '🌍 User preferred language (en, es, zh, hi, ar), nyaa~!',
+  })
+  language?: string;
 }
 
 @ObjectType()

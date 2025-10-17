@@ -24,12 +24,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid token payload, desu~! 🐾');
     }
 
-    console.log(`✅ [JwtStrategy] Token validated for user: ${payload.username}`);
+    console.log(`✅ [JwtStrategy] Token validated for user: ${payload.username} | Language: ${payload.language || 'en'}`);
 
     // Return payload - this will be attached to request object
     return {
       username: payload.username,
       role: payload.role,
+      language: payload.language || 'en', // 🌍 Include language preference, nyaa~!
     };
   }
 }

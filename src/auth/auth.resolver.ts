@@ -18,8 +18,8 @@ export class AuthResolver {
     description: '🔐 Login with credentials and receive JWT token, nyaa~!',
   })
   async login(@Args('input') input: LoginInput): Promise<AuthResponse> {
-    console.log(`🎫 [AuthResolver] Login request: ${input.username}`);
-    return this.authService.login(input.username, input.password);
+    console.log(`🎫 [AuthResolver] Login request: ${input.username} | Language: ${input.language || 'en'}`);
+    return this.authService.login(input.username, input.password, input.language || 'en');
   }
 
   /**

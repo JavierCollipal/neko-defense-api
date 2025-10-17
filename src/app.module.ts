@@ -12,6 +12,7 @@ import { SecurityModule } from './security/security.module';
 import { DatabaseModule } from './database/database.module';
 import { CacheModule } from './cache/cache.module';
 import { ResilienceModule } from './resilience/resilience.module';
+import { TranslationModule } from './common/translation.module'; // 🌍 Translation Module, nyaa~!
 import { AuthModule } from './auth/auth.module';
 import { ThreatActorsModule } from './threat-actors/threat-actors.module';
 import { HoneypotTriggersModule } from './honeypot-triggers/honeypot-triggers.module';
@@ -87,6 +88,9 @@ import { RedisThrottlerStorage } from './security/redis-throttler.storage';
 
     // 🛡️ Resilience Module (Circuit Breakers & Fault Tolerance)
     ResilienceModule,
+
+    // 🌍 Translation Module (Multilingual Support)
+    TranslationModule,
 
     // 🎯 Feature Modules
     AuthModule,

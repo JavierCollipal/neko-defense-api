@@ -3,14 +3,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ThreatActor, ThreatActorDocument } from '../database/schemas/threat-actor.schema';
+import { TranslationService } from '../common/services/translation.service';
 
 @Injectable()
 export class ThreatActorsService {
   constructor(
     @InjectModel(ThreatActor.name)
     private threatActorModel: Model<ThreatActorDocument>,
+    private translationService: TranslationService, // 🌍 Translation service, nyaa~!
   ) {
-    console.log('🎯 [ThreatActorsService] Initialized, nyaa~!');
+    console.log('🎯 [ThreatActorsService] Initialized with i18n support, nyaa~!');
   }
 
   /**
@@ -94,10 +96,10 @@ export class ThreatActorsService {
   }
 
   /**
-   * 🎯 Get threat actors by category with filtering
+   * 🎯 Get threat actors by category with filtering and i18n translation
    */
-  async getThreatActorsByCategory(category: string = 'all'): Promise<ThreatActor[]> {
-    console.log(`🎯 [ThreatActorsService] Fetching threat actors, category: ${category}`);
+  async getThreatActorsByCategory(category: string = 'all', language: string = 'en'): Promise<any[]> {
+    console.log(`🎯 [ThreatActorsService] Fetching threat actors, category: ${category} | Language: ${language}`);
 
     let filter: any = {};
 
@@ -167,22 +169,34 @@ export class ThreatActorsService {
       }
     }
 
-    const threatActors = await this.threatActorModel
+    let threatActors = await this.threatActorModel
       .find(filter)
       .sort({ threat_level: -1, rank: 1 })
+      .lean() // Convert to plain objects for translation
       .exec();
 
     console.log(`✅ [ThreatActorsService] Retrieved ${threatActors.length} threat actors`);
+
+    // 🌍 Translate if language is not English, nyaa~!
+    if (language !== 'en') {
+      console.log(`🌐 [ThreatActorsService] Translating ${threatActors.length} actors to ${language}`);
+      threatActors = await this.translationService.translateDocuments(
+        threatActors,
+        language,
+        'threat_actors',
+      );
+    }
+
     return threatActors;
   }
 
   /**
-   * 🔍 Get single threat actor by ID
+   * 🔍 Get single threat actor by ID with i18n translation
    */
-  async getThreatActorById(actorId: string): Promise<ThreatActor> {
-    console.log(`🔍 [ThreatActorsService] Fetching threat actor: ${actorId}`);
+  async getThreatActorById(actorId: string, language: string = 'en'): Promise<any> {
+    console.log(`🔍 [ThreatActorsService] Fetching threat actor: ${actorId} | Language: ${language}`);
 
-    const actor = await this.threatActorModel.findOne({ actor_id: actorId }).exec();
+    let actor = await this.threatActorModel.findOne({ actor_id: actorId }).lean().exec();
 
     if (!actor) {
       console.log(`⚠️ [ThreatActorsService] Threat actor not found: ${actorId}`);
@@ -190,6 +204,13 @@ export class ThreatActorsService {
     }
 
     console.log(`✅ [ThreatActorsService] Found threat actor: ${actor.name}`);
+
+    // 🌍 Translate if language is not English, nyaa~!
+    if (language !== 'en') {
+      console.log(`🌐 [ThreatActorsService] Translating actor to ${language}`);
+      actor = await this.translationService.translateDocument(actor, language, 'threat_actors');
+    }
+
     return actor;
   }
 }

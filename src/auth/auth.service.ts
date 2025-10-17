@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 export interface JwtPayload {
   username: string;
   role: string;
+  language?: string; // 🌍 User's preferred language for i18n, nyaa~!
   iat?: number;
   exp?: number;
 }
@@ -15,6 +16,7 @@ export interface AuthResponse {
   user: {
     username: string;
     role: string;
+    language?: string; // 🌍 User's preferred language, desu~!
   };
 }
 
@@ -62,10 +64,15 @@ export class AuthService {
    * 🎫 Generate JWT token for authenticated user
    * @param username - Username
    * @param password - Plain text password
+   * @param language - User's preferred language (optional, defaults to 'en')
    * @returns JWT access token and user info
    */
-  async login(username: string, password: string): Promise<AuthResponse> {
-    console.log(`🎫 [AuthService] Login attempt: ${username}`);
+  async login(
+    username: string,
+    password: string,
+    language = 'en',
+  ): Promise<AuthResponse> {
+    console.log(`🎫 [AuthService] Login attempt: ${username} | Language: ${language}`);
 
     const user = await this.validateUser(username, password);
 
@@ -76,17 +83,19 @@ export class AuthService {
     const payload: JwtPayload = {
       username: user.username,
       role: user.role,
+      language: language || 'en', // 🌍 Include language preference in JWT, desu~!
     };
 
     const accessToken = this.jwtService.sign(payload);
 
-    console.log(`✅ [AuthService] JWT token generated for: ${username}`);
+    console.log(`✅ [AuthService] JWT token generated for: ${username} | Language: ${language}`);
 
     return {
       access_token: accessToken,
       user: {
         username: user.username,
         role: user.role,
+        language: language || 'en',
       },
     };
   }
