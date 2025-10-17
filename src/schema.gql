@@ -10,6 +10,34 @@ type AuthResponse {
   user: UserType!
 }
 
+type CasePatternStatsType {
+  high_reusability: Int!
+  most_used: [CasePatternType!]!
+  top_categories: [String!]!
+  total_patterns: Int!
+}
+
+type CasePatternType {
+  _id: ID!
+  category: String
+  difficulty: String
+  last_used: DateTime
+  metadata: JSON
+  pattern_id: String!
+  problem: String
+  related_patterns: [String!]
+  reusability: String
+  solution: String
+  tags: [String!]
+  title: String!
+  usage_count: Int
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type DinaPerpType {
   crimesAccused: [String!]
   fullName: String!
@@ -43,6 +71,61 @@ type DinaStatsType {
   victims_estimated: Int!
 }
 
+type HoneypotStatsType {
+  last_triggered: DateTime
+  trap_name: String!
+  trigger_count: Float!
+  unique_ips: [String!]!
+}
+
+type HoneypotSummaryType {
+  most_active_trap: HoneypotStatsType
+  total_triggers: Float!
+  trap_stats: [HoneypotStatsType!]!
+  unique_ips: Float!
+  unique_traps: Float!
+}
+
+type HoneypotTriggerType {
+  _id: ID!
+  action_taken: String
+  ip_address: String!
+  metadata: JSON
+  request_body: JSON
+  request_headers: JSON
+  request_method: String
+  request_path: String
+  threat_level: String
+  trap_name: String!
+  triggered_at: DateTime!
+  user_agent: String
+}
+
+type HuntConversationType {
+  _id: ID!
+  completed_at: DateTime
+  evidence_collected: Boolean
+  evidence_package_id: String
+  hunt_summary: JSON
+  hunt_type: String
+  keywords: [String!]
+  metadata: JSON
+  outcome: String
+  session_id: String!
+  started_at: DateTime
+  status: String
+  target_actor: String
+}
+
+type HuntStatsType {
+  active_hunts: Int!
+  completed_hunts: Int!
+  recent_targets: [String!]!
+  successful_captures: Int!
+  top_keywords: [String!]!
+  total_hunts: Int!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -67,14 +150,44 @@ type Mutation {
 }
 
 type Query {
+  """🔍 Get specific case pattern by ID, nyaa~!"""
+  casePattern(patternId: String!): CasePatternType
+
+  """📊 Get case pattern statistics and insights, desu~!"""
+  casePatternStats: CasePatternStatsType!
+
+  """📚 Get learned case patterns with optional filtering, nyaa~!"""
+  casePatterns(limit: Int! = 100, reusability: String): [CasePatternType!]!
+
   """🎯 Get all documented DINA perpetrators, desu~!"""
   dinaPerpetrators: [DinaPerpType!]!
 
   """📊 Get DINA documentation statistics, nyaa~!"""
   dinaStats: DinaStatsType!
 
+  """📊 Get honeypot activity summary and stats, desu~!"""
+  honeypotSummary: HoneypotSummaryType!
+
+  """🍯 Get honeypot triggers with optional filtering, nyaa~!"""
+  honeypotTriggers(limit: Int! = 100, trapName: String): [HoneypotTriggerType!]!
+
+  """🔍 Get all triggers from a specific IP address, nyaa~!"""
+  honeypotTriggersByIp(ipAddress: String!): [HoneypotTriggerType!]!
+
+  """🔍 Get specific hunt conversation by session ID, nyaa~!"""
+  huntConversation(sessionId: String!): HuntConversationType
+
+  """🎯 Get hunt conversations with optional status filtering, nyaa~!"""
+  huntConversations(limit: Int! = 50, status: String): [HuntConversationType!]!
+
+  """📊 Get comprehensive hunt operation statistics, desu~!"""
+  huntStats: HuntStatsType!
+
   """👤 Get current authenticated user info, desu~!"""
   me: String!
+
+  """🚨 Get recent high-threat honeypot triggers, desu~!"""
+  recentHighThreatTriggers(limit: Int! = 20): [HoneypotTriggerType!]!
 
   """🔍 Get specific threat actor by ID, nyaa~!"""
   threatActor(actorId: String!): ThreatActorType

@@ -1,0 +1,68 @@
+# 🐾⚡ ARTILLERY SCENARIO - TV Monitor Flow ⚡🐾
+# Simulates the Neko TV security monitoring system
+
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Continuous monitoring
+    - duration: 180  # 3 minutes
+      arrivalRate: 1
+      name: "TV Monitor (1 instance/sec)"
+
+  ensure:
+    maxErrorRate: 1  # Very strict for monitoring
+    p95: 500
+    p99: 1000
+
+  http:
+    timeout: 10
+
+scenarios:
+  # TV Monitor Scenario: Cycles through different views
+  - name: "TV Security Monitor"
+    flow:
+      # Display 1: ASCII Art Screen
+      - get:
+          url: "/api/ascii-art"
+          capture:
+            - json: "$.count"
+              as: "artCount"
+
+      - think: 10  # Display for 10 seconds
+
+      # Display 2: Stats Overview
+      - get:
+          url: "/api/stats"
+
+      - think: 10
+
+      # Display 3: MongoDB Stats (system health)
+      - get:
+          url: "/api/mongodb-stats"
+          capture:
+            - json: "$.data.database.collections"
+              as: "collectionCount"
+
+      - think: 10
+
+      # Display 4: Threat Counts
+      - get:
+          url: "/api/threat-counts"
+
+      - think: 10
+
+      # Back to health check
+      - get:
+          url: "/api/health"
+
+      - think: 5
+
+      # Repeat cycle
+      - loop:
+          - get:
+              url: "/api/ascii-art"
+          - think: 15
+          - get:
+              url: "/api/stats"
+          - think: 15
+        count: 2

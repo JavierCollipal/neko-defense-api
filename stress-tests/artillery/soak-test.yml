@@ -1,0 +1,53 @@
+# 🐾⚡ ARTILLERY SCENARIO - Soak Test (Endurance) ⚡🐾
+# Long-running test to detect memory leaks and stability issues
+
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Extended sustained load (1 hour)
+    - duration: 3600  # 1 hour
+      arrivalRate: 5
+      name: "Soak Test (5 users/sec for 1 hour)"
+
+  ensure:
+    maxErrorRate: 2
+    p95: 1000
+    p99: 2000
+
+  http:
+    timeout: 10
+
+scenarios:
+  # Realistic mixed workload
+  - name: "Soak Test Workload"
+    weight: 100
+    flow:
+      # Cycle through typical user actions
+      - get:
+          url: "/api/health"
+
+      - think: 5
+
+      - get:
+          url: "/api/stats"
+
+      - think: 10
+
+      - get:
+          url: "/api/threat-counts"
+
+      - think: 15
+
+      # Occasional heavy query
+      - get:
+          url: "/api/threat-actors"
+          ifTrue: "{{ $randomNumber(0, 100) > 80 }}"  # 20% chance
+
+      - think: 20
+
+      # Occasional MongoDB stats check
+      - get:
+          url: "/api/mongodb-stats"
+          ifTrue: "{{ $randomNumber(0, 100) > 90 }}"  # 10% chance
+
+      - think: 30

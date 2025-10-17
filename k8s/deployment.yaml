@@ -1,0 +1,222 @@
+# 🐾⚡ NEKO DEFENSE API - Kubernetes Deployment ⚡🐾
+# INFINITE HORIZONTAL SCALING, NYAA~! 🌍✨
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neko-defense-api
+  namespace: production
+  labels:
+    app: neko-defense-api
+    version: v1
+    tier: backend
+spec:
+  # 🚀 SCALING CONFIGURATION
+  replicas: 3  # Start with 3 pods (auto-scales up to 10)
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2        # Add 2 new pods before killing old ones
+      maxUnavailable: 0  # Zero-downtime deployment!
+
+  selector:
+    matchLabels:
+      app: neko-defense-api
+
+  template:
+    metadata:
+      labels:
+        app: neko-defense-api
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
+
+    spec:
+      # 🛡️ SECURITY CONFIGURATION
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # 📦 INIT CONTAINERS (run before main container)
+      initContainers:
+        - name: wait-for-redis
+          image: busybox:1.35
+          command: ['sh', '-c', 'until nc -z redis-service 6379; do echo waiting for redis; sleep 2; done;']
+
+        - name: wait-for-mongodb
+          image: busybox:1.35
+          command: ['sh', '-c', 'until nc -z $MONGODB_HOST 27017; do echo waiting for mongodb; sleep 2; done;']
+          env:
+            - name: MONGODB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: host
+
+      # 🐾 MAIN APPLICATION CONTAINER
+      containers:
+        - name: neko-defense-api
+          image: your-registry/neko-defense-api:latest
+          imagePullPolicy: Always
+
+          # 🚪 PORTS
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+
+          # 🌍 ENVIRONMENT VARIABLES
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "5000"
+
+            # MongoDB Configuration (from Secret)
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: uri
+            - name: MONGODB_DATABASE
+              value: "neko-defense-system"
+
+            # Redis Configuration
+            - name: REDIS_HOST
+              value: "redis-service"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: password
+                  optional: true
+
+            # JWT Configuration (from Secret)
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: jwt-secret
+            - name: JWT_EXPIRATION
+              value: "7d"
+
+            # Rate Limiting
+            - name: RATE_LIMIT_TTL
+              value: "60000"
+            - name: RATE_LIMIT_MAX
+              value: "1000"
+
+            # CORS
+            - name: CORS_ORIGIN
+              value: "https://your-domain.com,https://www.your-domain.com"
+
+            # Admin Credentials (from Secret)
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: admin-username
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: admin-password
+
+          # 🩺 HEALTH CHECKS
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          # 💪 RESOURCE LIMITS
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+
+          # 🛡️ SECURITY CONTEXT
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+
+          # 📁 VOLUME MOUNTS
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: logs
+              mountPath: /app/logs
+
+      # 📁 VOLUMES
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+
+      # 🔄 RESTART POLICY
+      restartPolicy: Always
+
+      # 🏷️ NODE AFFINITY (prefer different nodes for HA)
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - neko-defense-api
+                topologyKey: kubernetes.io/hostname
+
+---
+
+# 🌐 SERVICE - Load Balancer
+apiVersion: v1
+kind: Service
+metadata:
+  name: neko-defense-api-service
+  namespace: production
+  labels:
+    app: neko-defense-api
+spec:
+  type: ClusterIP
+  selector:
+    app: neko-defense-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 3600

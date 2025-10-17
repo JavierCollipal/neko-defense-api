@@ -1,0 +1,61 @@
+# 🐾⚡ ARTILLERY SCENARIO - Spike Test ⚡🐾
+# Tests system behavior under sudden traffic spikes
+
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Normal baseline
+    - duration: 30
+      arrivalRate: 5
+      name: "Baseline (5 users/sec)"
+
+    # SPIKE! Sudden traffic burst
+    - duration: 60
+      arrivalRate: 50
+      name: "🚨 SPIKE! (50 users/sec)"
+
+    # Recovery period
+    - duration: 60
+      arrivalRate: 5
+      name: "Recovery (5 users/sec)"
+
+    # Second spike
+    - duration: 30
+      arrivalRate: 75
+      name: "🚨 MEGA SPIKE! (75 users/sec)"
+
+    # Final recovery
+    - duration: 30
+      arrivalRate: 5
+      name: "Final recovery (5 users/sec)"
+
+  ensure:
+    maxErrorRate: 20  # Allow higher error rate during spikes
+    p95: 2000
+    p99: 5000
+
+  http:
+    timeout: 15
+
+scenarios:
+  # Mix of endpoints during spike
+  - name: "Spike Test Mix"
+    flow:
+      # Health check (fast)
+      - get:
+          url: "/api/health"
+
+      - think: 0.5
+
+      # Stats (medium)
+      - get:
+          url: "/api/stats"
+
+      - think: 0.5
+
+      # Sometimes hit heavy endpoint
+      - get:
+          url: "/api/threat-actors"
+          ifTrue: "{{ $randomNumber(0, 100) > 70 }}"  # 30% chance
+
+      - think: 1

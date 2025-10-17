@@ -1,0 +1,108 @@
+# 🐾⚡ ARTILLERY SCENARIO - Dashboard User Flow ⚡🐾
+# Simulates a user browsing the Neko Defense Dashboard
+
+config:
+  target: "http://localhost:5001"
+  phases:
+    # Warm-up phase
+    - duration: 30
+      arrivalRate: 2
+      name: "Warm-up (2 users/sec)"
+
+    # Ramp-up phase
+    - duration: 60
+      arrivalRate: 2
+      rampTo: 10
+      name: "Ramp-up (2 → 10 users/sec)"
+
+    # Sustained load
+    - duration: 120
+      arrivalRate: 10
+      name: "Sustained load (10 users/sec)"
+
+    # Ramp-down
+    - duration: 30
+      arrivalRate: 10
+      rampTo: 2
+      name: "Ramp-down (10 → 2 users/sec)"
+
+  # Performance thresholds
+  ensure:
+    maxErrorRate: 5  # Max 5% error rate
+    p95: 1000        # 95th percentile < 1000ms
+    p99: 2000        # 99th percentile < 2000ms
+
+  # HTTP configuration
+  http:
+    timeout: 10
+
+  # Processor for custom logic
+  processor: "./dashboard-flow-processor.js"
+
+scenarios:
+  # Scenario 1: Dashboard Overview User (70% of traffic)
+  - name: "Dashboard Overview"
+    weight: 70
+    flow:
+      # Load main dashboard stats
+      - get:
+          url: "/api/health"
+          capture:
+            - json: "$.status"
+              as: "healthStatus"
+
+      - think: 1  # User reads the page
+
+      - get:
+          url: "/api/stats"
+          capture:
+            - json: "$.data.total_threats"
+              as: "totalThreats"
+
+      - think: 2
+
+      - get:
+          url: "/api/threat-counts"
+          capture:
+            - json: "$.data.all"
+              as: "threatCount"
+
+      - think: 3
+
+      # User refreshes (typical dashboard behavior)
+      - loop:
+          - get:
+              url: "/api/stats"
+          - think: 5
+        count: 2
+
+  # Scenario 2: Threat Investigation User (20% of traffic)
+  - name: "Threat Investigation"
+    weight: 20
+    flow:
+      # Load threat actors list
+      - get:
+          url: "/api/threat-actors"
+          capture:
+            - json: "$.count"
+              as: "actorCount"
+
+      - think: 5  # User reviews the list
+
+      # Load MongoDB stats to see database health
+      - get:
+          url: "/api/mongodb-stats"
+
+      - think: 3
+
+  # Scenario 3: Quick Health Check (10% of traffic)
+  - name: "Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/health"
+
+      - think: 1
+
+      - get:
+          url: "/api/stats"

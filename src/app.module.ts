@@ -9,11 +9,18 @@ import { join } from 'path';
 
 // Import custom modules
 import { SecurityModule } from './security/security.module';
+import { DatabaseModule } from './database/database.module';
+import { CacheModule } from './cache/cache.module';
+import { ResilienceModule } from './resilience/resilience.module';
 import { AuthModule } from './auth/auth.module';
 import { ThreatActorsModule } from './threat-actors/threat-actors.module';
+import { HoneypotTriggersModule } from './honeypot-triggers/honeypot-triggers.module';
+import { HuntOperationsModule } from './hunt-operations/hunt-operations.module';
+import { CasePatternsModule } from './case-patterns/case-patterns.module';
 import { DinaModule } from './dina/dina.module';
 import { ValechModule } from './valech/valech.module';
 import { AppController } from './app.controller';
+import { RedisThrottlerStorage } from './security/redis-throttler.storage';
 
 @Module({
   imports: [
@@ -23,9 +30,24 @@ import { AppController } from './app.controller';
       envFilePath: '.env',
     }),
 
-    // 🗄️ MongoDB Connection - Mongoose magic, desu~!
+    // 🗄️ MongoDB Connection - FORTRESS LEVEL SECURITY, desu~!
     MongooseModule.forRoot(process.env.MONGODB_URI, {
       dbName: process.env.MONGODB_DATABASE || 'neko-defense-system',
+      // 🔒 2025 Security Best Practices
+      tls: true, // Enforce TLS/SSL encryption
+      tlsAllowInvalidCertificates: false, // Reject invalid certificates
+      retryWrites: true, // Retry failed writes
+      retryReads: true, // Retry failed reads
+      w: 'majority', // Write concern for data durability
+      maxPoolSize: 10, // Connection pool limit
+      minPoolSize: 2, // Maintain minimum connections
+      maxIdleTimeMS: 10000, // Close idle connections
+      serverSelectionTimeoutMS: 5000, // Fail fast on connection issues
+      socketTimeoutMS: 45000, // Socket timeout
+      family: 4, // Use IPv4
+      // 🛡️ Connection error handling
+      autoIndex: process.env.NODE_ENV !== 'production', // Disable auto-indexing in production
+      autoCreate: process.env.NODE_ENV !== 'production', // Disable auto-collection creation in production
     }),
 
     // 🎮 GraphQL Configuration - Apollo Server, nyaa~!
@@ -48,17 +70,30 @@ import { AppController } from './app.controller';
     }),
 
     // 🛡️ Rate Limiting - Protection from abuse, desu~!
+    // 🚀 Redis storage configured in SecurityModule for distributed rate limiting!
     ThrottlerModule.forRoot([{
-      ttl: parseInt(process.env.RATE_LIMIT_TTL) || 60,
-      limit: parseInt(process.env.RATE_LIMIT_MAX) || 100,
+      ttl: parseInt(process.env.RATE_LIMIT_TTL) || 60000, // 60 seconds in milliseconds
+      limit: parseInt(process.env.RATE_LIMIT_MAX) || 1000, // 1000 req/min for worldwide scale!
     }]),
 
     // 🛡️ Security Module (2025 AI/ML Protection) - MUST BE FIRST!
     SecurityModule,
 
+    // 🗄️ Database Module (Connection Management & Health Checks)
+    DatabaseModule,
+
+    // ⚡ Cache Module (Redis Response Caching)
+    CacheModule,
+
+    // 🛡️ Resilience Module (Circuit Breakers & Fault Tolerance)
+    ResilienceModule,
+
     // 🎯 Feature Modules
     AuthModule,
     ThreatActorsModule,
+    HoneypotTriggersModule,
+    HuntOperationsModule,
+    CasePatternsModule,
     DinaModule,
     ValechModule,
   ],

@@ -517,6 +517,151 @@ const VALECH_VICTIM_DATABASE = [
       confidence: 100,
       category: "EXECUTED"
     }
+  },
+  {
+    fullName: "Sheila Cassidy",
+    idNumber: "British-1937",
+    age: 38,
+    gender: "Female",
+    occupation: "Medical Doctor",
+    politicalAffiliation: "None (humanitarian)",
+    detentionInfo: {
+      arrested: new Date("1975-11-01"),
+      released: new Date("1975-12-29"),
+      duration: 58,
+      circumstances: "Arrested for treating wounded political opponent Nelson Gutiérrez"
+    },
+    detentionCenters: [
+      {
+        name: "Villa Grimaldi",
+        codeName: "Cuartel Terranova",
+        datesHeld: {
+          from: new Date("1975-11-01"),
+          to: new Date("1975-11-15")
+        }
+      },
+      {
+        name: "Tres Álamos",
+        codeName: "Three Poplars",
+        datesHeld: {
+          from: new Date("1975-11-15"),
+          to: new Date("1975-12-29")
+        }
+      }
+    ],
+    tortureReported: {
+      methods: ["Electric shock", "La Parrilla (electric shock bed)", "Beating", "Blindfolding"],
+      perpetrators: ["DINA agents at Villa Grimaldi", "Chilean secret police"],
+      witnesses: ["Multiple fellow prisoners"],
+      medicalConsequences: "PTSD, physical trauma"
+    },
+    outcome: "SURVIVED",
+    testimonyText: "Dr. Sheila Cassidy, a British doctor working in Chile, treated a wounded political opponent named Nelson Gutiérrez. On November 1, 1975, she was arrested by DINA. She was taken to Villa Grimaldi where she was stripped, beaten, and tortured with electric shocks on la parrilla. Her testimony brought international attention to human rights abuses in Chile, particularly from the UK. She was released after British government intervention on December 29, 1975. Her case helped expose Villa Grimaldi's operations to the world.",
+    reparations: {
+      awarded: false,
+      types: ["International recognition", "Advocacy work"],
+      dateAwarded: null
+    },
+    source: {
+      commission: "International testimony (1976) - Not Chilean national",
+      verificationStatus: "INTERNATIONALLY VERIFIED - UK GOVERNMENT RECORD"
+    },
+    linkedPerpetrators: [],
+    significance: "British doctor whose testimony brought international attention to Villa Grimaldi. Major diplomatic incident between UK and Chile. Helped expose torture to world.",
+    metadata: {
+      ingestionDate: new Date(),
+      parserVersion: "1.0.0-direct",
+      confidence: 100,
+      category: "SURVIVOR"
+    }
+  },
+  {
+    fullName: "Orlando Letelier del Solar",
+    idNumber: "2.345.678-9",
+    age: 44,
+    gender: "Male",
+    occupation: "Former Chilean Ambassador to USA, Former Defense Minister",
+    politicalAffiliation: "Socialist Party",
+    detentionInfo: {
+      arrested: null,
+      released: null,
+      duration: 0,
+      circumstances: "Assassinated in Washington D.C. by DINA car bomb"
+    },
+    detentionCenters: [
+      {
+        name: "Previously detained at Dawson Island (1973)",
+        codeName: "Dawson Island concentration camp",
+        datesHeld: {
+          from: new Date("1973-09-11"),
+          to: new Date("1974-09-15")
+        }
+      }
+    ],
+    tortureReported: {
+      methods: ["Car bomb assassination"],
+      perpetrators: ["Michael Townley (DINA agent)", "Manuel Contreras (DINA chief - ordered)", "Cuban exiles recruited by Townley"],
+      medicalConsequences: "Killed instantly in car bomb explosion"
+    },
+    outcome: "ASSASSINATED",
+    testimonyText: "Orlando Letelier was Chile's Ambassador to the United States and former Defense Minister under President Allende. After the coup, he was imprisoned at Dawson Island concentration camp. Released in 1974, he went into exile in Washington D.C. where he became a leading voice against Pinochet. On September 21, 1976, at 9:35 AM, a bomb planted under his car by DINA agent Michael Townley exploded at Sheridan Circle in Washington D.C., killing him and his colleague Ronni Moffitt. This assassination on U.S. soil was part of Operation Condor. It led to major diplomatic tensions and eventually contributed to Pinochet's downfall. Michael Townley confessed, Manuel Contreras was convicted.",
+    reparations: {
+      awarded: true,
+      types: ["Legal prosecution (Contreras, Townley convicted)", "U.S. investigation", "Chilean government apology"],
+      dateAwarded: new Date("1995-11-12")
+    },
+    source: {
+      commission: "Rettig Report (1991) + U.S. Investigation",
+      verificationStatus: "INTERNATIONALLY VERIFIED - U.S. FEDERAL CRIME"
+    },
+    linkedPerpetrators: ["Manuel Contreras Sepúlveda", "Michael Townley", "Pedro Espinoza Bravo"],
+    significance: "Assassination on U.S. soil. Major international crime. Proved Operation Condor's reach. Led to Contreras prosecution and U.S.-Chile tensions.",
+    metadata: {
+      ingestionDate: new Date(),
+      parserVersion: "1.0.0-direct",
+      confidence: 100,
+      category: "ASSASSINATED"
+    }
+  },
+  {
+    fullName: "Ronni Karpen Moffitt",
+    idNumber: "USA-1951",
+    age: 25,
+    gender: "Female",
+    occupation: "Researcher, Institute for Policy Studies",
+    politicalAffiliation: "Human rights advocate",
+    detentionInfo: {
+      arrested: null,
+      released: null,
+      duration: 0,
+      circumstances: "Killed in car bomb targeting Orlando Letelier"
+    },
+    detentionCenters: [],
+    tortureReported: {
+      methods: ["Car bomb - collateral victim"],
+      perpetrators: ["Michael Townley (DINA agent - planted bomb)", "Manuel Contreras (DINA chief)", "Cuban exiles"],
+      medicalConsequences: "Killed by shrapnel - larynx and carotid artery severed, drowned in own blood"
+    },
+    outcome: "ASSASSINATED",
+    testimonyText: "Ronni Moffitt was a 25-year-old American researcher at the Institute for Policy Studies, married just four months earlier. On September 21, 1976, she was in the front passenger seat of Orlando Letelier's car, with her husband Michael in the back, when the DINA bomb exploded at Sheridan Circle in Washington D.C. A piece of shrapnel severed her larynx and carotid artery. She drowned in her own blood approximately 30 minutes after the explosion. Her husband Michael survived with minor injuries. Her death, as an innocent American bystander, shocked the U.S. public and led to intense pressure on Chile. The FBI investigation eventually led to convictions of Chilean agents.",
+    reparations: {
+      awarded: true,
+      types: ["U.S. federal lawsuit won by family", "Legal prosecution of perpetrators", "Chilean government compensation"],
+      amount: 5000000,
+      dateAwarded: new Date("1995-11-12")
+    },
+    source: {
+      commission: "U.S. Federal Investigation + Chilean Recognition",
+      verificationStatus: "INTERNATIONALLY VERIFIED - U.S. FEDERAL VICTIM"
+    },
+    linkedPerpetrators: ["Manuel Contreras Sepúlveda", "Michael Townley", "Pedro Espinoza Bravo"],
+    significance: "American victim killed on U.S. soil. Her death galvanized U.S. opposition to Pinochet. Major factor in international isolation of Chile.",
+    metadata: {
+      ingestionDate: new Date(),
+      parserVersion: "1.0.0-direct",
+      confidence: 100,
+      category: "ASSASSINATED"
+    }
   }
 ];
 

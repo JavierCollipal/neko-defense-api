@@ -1,0 +1,103 @@
+# 🐾⚡ NEKO DEFENSE API - Kubernetes Auto-Scaling ⚡🐾
+# INFINITE SCALING BASED ON LOAD, NYAA~! 🌍✨
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: neko-defense-api-hpa
+  namespace: production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: neko-defense-api
+
+  # 🎯 SCALING CONFIGURATION
+  minReplicas: 3    # Minimum pods (for HA)
+  maxReplicas: 10   # Maximum pods (cost control)
+
+  # 📊 SCALING METRICS
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70  # Scale up when CPU > 70%
+
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80  # Scale up when memory > 80%
+
+  # ⚡ SCALING BEHAVIOR
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60  # Wait 60s before scaling up
+      policies:
+        - type: Percent
+          value: 100  # Double pods at once if needed
+          periodSeconds: 60
+        - type: Pods
+          value: 2    # Or add 2 pods at once
+          periodSeconds: 60
+      selectPolicy: Max  # Use the more aggressive policy
+
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Wait 5 minutes before scaling down
+      policies:
+        - type: Percent
+          value: 50   # Remove max 50% of pods at once
+          periodSeconds: 60
+        - type: Pods
+          value: 1    # Or remove 1 pod at once
+          periodSeconds: 60
+      selectPolicy: Min  # Use the more conservative policy
+
+---
+
+# 🛡️ POD DISRUPTION BUDGET
+# Ensures minimum availability during voluntary disruptions
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: neko-defense-api-pdb
+  namespace: production
+spec:
+  minAvailable: 2  # Always keep at least 2 pods running
+  selector:
+    matchLabels:
+      app: neko-defense-api
+
+---
+
+# ⚡ VERTICAL POD AUTOSCALER (Optional)
+# Automatically adjusts CPU/memory requests
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: neko-defense-api-vpa
+  namespace: production
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: neko-defense-api
+
+  updatePolicy:
+    updateMode: "Auto"  # Automatically apply recommendations
+
+  resourcePolicy:
+    containerPolicies:
+      - containerName: neko-defense-api
+        minAllowed:
+          cpu: "100m"
+          memory: "128Mi"
+        maxAllowed:
+          cpu: "2000m"
+          memory: "2Gi"
+        controlledResources: ["cpu", "memory"]

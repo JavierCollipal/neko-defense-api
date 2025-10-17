@@ -1,0 +1,113 @@
+# 🐾⚡ NEKO DEFENSE API - Docker Compose Configuration ⚡🐾
+# WORLDWIDE SCALE DEPLOYMENT WITH REDIS, NYAA~! 🌍✨
+
+version: '3.8'
+
+services:
+  # 🔴 Redis - Distributed Rate Limiting & Caching
+  redis:
+    image: redis:7-alpine
+    container_name: neko-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    volumes:
+      - redis-data:/data
+    networks:
+      - neko-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  # 🐾 Neko Defense API (Clustered with PM2)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neko-defense-api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-5000}:${PORT:-5000}"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-5000}
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - RATE_LIMIT_TTL=${RATE_LIMIT_TTL:-60000}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-1000}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+    networks:
+      - neko-network
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT:-5000}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 📊 Redis Commander (Optional - Redis GUI)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: neko-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD:-}
+    networks:
+      - neko-network
+    profiles:
+      - debug  # Only start with: docker-compose --profile debug up
+
+networks:
+  neko-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
+
+# 🐾 HOW TO USE THIS DOCKER COMPOSE, NYAA~! 🐾
+#
+# 🚀 Start everything (production):
+#   docker-compose up -d
+#
+# 🔍 Start with Redis GUI (debug mode):
+#   docker-compose --profile debug up -d
+#
+# 📊 View logs:
+#   docker-compose logs -f api
+#   docker-compose logs -f redis
+#
+# 🛑 Stop everything:
+#   docker-compose down
+#
+# 🧹 Clean everything (including volumes):
+#   docker-compose down -v
+#
+# 🔄 Rebuild API after code changes:
+#   docker-compose up -d --build api
+#
+# 🎯 Access points:
+#   - API GraphQL: http://localhost:5000/graphql
+#   - API Health: http://localhost:5000/health
+#   - Redis Commander: http://localhost:8081 (debug profile only)
+#
+# 💖 CLUSTERED DEPLOYMENT READY, DESU~! ✨
