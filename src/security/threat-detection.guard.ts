@@ -25,20 +25,20 @@ export class ThreatDetectionGuard implements CanActivate {
     // Track request start time for response time analysis
     const startTime = Date.now();
 
-    // 🔍 Build request profile for AI analysis
-    const profile: RequestProfile = {
-      ip: this.extractClientIp(request),
-      userAgent: request.headers['user-agent'] || '',
-      endpoint: request.url || request.path || '/',
-      method: request.method,
-      timestamp: new Date(),
-      responseTime: 0, // Will be calculated
-      statusCode: 200, // Default, will be updated
-      payloadSize: this.calculatePayloadSize(request),
-      headers: this.sanitizeHeaders(request.headers),
-    };
-
     try {
+      // 🔍 Build request profile for AI analysis
+      const profile: RequestProfile = {
+        ip: this.extractClientIp(request),
+        userAgent: request.headers['user-agent'] || '',
+        endpoint: request.url || request.path || '/',
+        method: request.method,
+        timestamp: new Date(),
+        responseTime: 0, // Will be calculated
+        statusCode: 200, // Default, will be updated
+        payloadSize: this.calculatePayloadSize(request),
+        headers: this.sanitizeHeaders(request.headers),
+      };
+
       // 🤖 Run AI/ML threat analysis
       const threatScore = await this.anomalyDetector.analyzeRequest(profile);
 

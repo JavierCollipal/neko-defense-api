@@ -137,6 +137,9 @@ type LegalStatusType {
 }
 
 input LoginInput {
+  """🌍 User preferred language for i18n (en, es, zh, hi, ar), nyaa~!"""
+  language: String = "en"
+
   """Password for authentication"""
   password: String!
 
@@ -189,10 +192,10 @@ type Query {
   """🚨 Get recent high-threat honeypot triggers, desu~!"""
   recentHighThreatTriggers(limit: Int! = 20): [HoneypotTriggerType!]!
 
-  """🔍 Get specific threat actor by ID, nyaa~!"""
+  """🔍 Get specific threat actor by ID with i18n support, nyaa~!"""
   threatActor(actorId: String!): ThreatActorType
 
-  """🎯 Get threat actors filtered by category, desu~!"""
+  """🎯 Get threat actors filtered by category with i18n support, desu~!"""
   threatActors(category: String! = "all"): [ThreatActorType!]!
 
   """📊 Get threat actor counts by category, nyaa~!"""
@@ -228,6 +231,8 @@ type ThreatCountsType {
 }
 
 type UserType {
+  """🌍 User preferred language (en, es, zh, hi, ar), nyaa~!"""
+  language: String
   role: String!
   username: String!
 }

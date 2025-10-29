@@ -4,7 +4,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ThreatDetectionGuard } from './security/threat-detection.guard';
 import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
 
 async function bootstrap() {
   // 🌍 Cluster instance identification
@@ -24,13 +23,9 @@ async function bootstrap() {
   }));
 
   // 🚫 NoSQL Injection Protection - 2025 DEFENSE! 🚫
-  app.use(mongoSanitize({
-    replaceWith: '_', // Replace $ and . characters with _
-    onSanitize: ({ req, key }) => {
-      console.warn(`⚠️ NOSQL INJECTION ATTEMPT BLOCKED! Key: ${key}, Path: ${req.path}, IP: ${req.ip}`);
-    },
-  }));
-  console.log('🛡️ NoSQL Injection Protection ACTIVATED, nyaa~!');
+  // NOTE: Removed express-mongo-sanitize middleware (compatibility issues)
+  // Using MongoSanitizeInterceptor instead (applied below at line 60)
+  console.log('🛡️ NoSQL Injection Protection will be activated via Interceptor, nyaa~!');
 
   // CORS configuration - Only allow specified origins!
   const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',');
