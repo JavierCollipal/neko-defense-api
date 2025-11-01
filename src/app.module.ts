@@ -19,6 +19,7 @@ import { HoneypotTriggersModule } from './honeypot-triggers/honeypot-triggers.mo
 import { HuntOperationsModule } from './hunt-operations/hunt-operations.module';
 import { CasePatternsModule } from './case-patterns/case-patterns.module';
 import { DinaModule } from './dina/dina.module';
+import { DINAArmyListModule } from './dina-army-list/dina-army-list.module'; // 📋 DINA Army List (1097 agents), nyaa~!
 import { ValechModule } from './valech/valech.module';
 import { AppController } from './app.controller';
 import { RedisThrottlerStorage } from './security/redis-throttler.storage';
@@ -99,6 +100,7 @@ import { RedisThrottlerStorage } from './security/redis-throttler.storage';
     HuntOperationsModule,
     CasePatternsModule,
     DinaModule,
+    DINAArmyListModule, // 📋 2008 DINA Army List GraphQL API, nyaa~!
     ValechModule,
   ],
   controllers: [AppController],
