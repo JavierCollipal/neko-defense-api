@@ -16,7 +16,7 @@ describe('Threat Actor Domain Logic', () => {
       actor_id: 'predator-1',
       name: 'Test Predator',
       type: 'predator',
-      threat_level: 'CRITICAL',
+      threat_level: 'CRITICAL' as any,
       rank: 1,
     } as ThreatActor,
     {
@@ -24,7 +24,7 @@ describe('Threat Actor Domain Logic', () => {
       name: 'Test Pedophile',
       type: 'pedophile',
       target_type: 'children',
-      threat_level: 'CRITICAL',
+      threat_level: 'CRITICAL' as any,
       rank: 2,
     } as ThreatActor,
     {
@@ -32,7 +32,7 @@ describe('Threat Actor Domain Logic', () => {
       name: 'DINA Agent',
       network: 'DINA',
       actor_classification: 'DINA_NETWORK',
-      threat_level: 'HIGH',
+      threat_level: 'HIGH' as any,
       rank: 3,
     } as ThreatActor,
     {
@@ -40,7 +40,7 @@ describe('Threat Actor Domain Logic', () => {
       name: 'Ransomware Group',
       type: 'cybercrime_group',
       actor_classification: 'CYBERCRIME_RANSOMWARE',
-      threat_level: 'HIGH',
+      threat_level: 'HIGH' as any,
       rank: 4,
     } as ThreatActor,
     {
@@ -48,7 +48,7 @@ describe('Threat Actor Domain Logic', () => {
       name: 'State Actor',
       state_actor: true,
       state_sponsored: true,
-      threat_level: 'CRITICAL',
+      threat_level: 'CRITICAL' as any,
       rank: 5,
     } as ThreatActor,
     {
@@ -56,7 +56,7 @@ describe('Threat Actor Domain Logic', () => {
       name: 'Crypto Thief',
       type: 'crypto_thief',
       category: 'crypto_crime',
-      threat_level: 'MEDIUM',
+      threat_level: 'MEDIUM' as any,
       rank: 6,
     } as ThreatActor,
   ];
@@ -93,7 +93,7 @@ describe('Threat Actor Domain Logic', () => {
         type: 'predator',
         category: 'pedophile',
         description: 'pedophile activity detected',
-        threat_level: 'CRITICAL',
+        threat_level: 'CRITICAL' as any,
       } as ThreatActor;
 
       const counts = calculateThreatCounts([multiClassActor]);
@@ -139,7 +139,7 @@ describe('Threat Actor Domain Logic', () => {
     });
 
     it('should find first match if multiple actors have same ID', () => {
-      const duplicates = [
+      const duplicates: ThreatActor[] = [
         { actor_id: 'dup', name: 'First' } as ThreatActor,
         { actor_id: 'dup', name: 'Second' } as ThreatActor,
       ];
@@ -162,11 +162,11 @@ describe('Threat Actor Domain Logic', () => {
   describe('sortByPriority', () => {
     it('should sort by threat_level descending, then rank ascending', () => {
       const unsorted: ThreatActor[] = [
-        { actor_id: '1', threat_level: 'MEDIUM', rank: 3 } as ThreatActor,
-        { actor_id: '2', threat_level: 'CRITICAL', rank: 2 } as ThreatActor,
-        { actor_id: '3', threat_level: 'CRITICAL', rank: 1 } as ThreatActor,
-        { actor_id: '4', threat_level: 'HIGH', rank: 1 } as ThreatActor,
-        { actor_id: '5', threat_level: 'LOW', rank: 1 } as ThreatActor,
+        { actor_id: '1', name: '1', threat_level: 'MEDIUM' as any, rank: 3 } as ThreatActor,
+        { actor_id: '2', name: '2', threat_level: 'CRITICAL' as any, rank: 2 } as ThreatActor,
+        { actor_id: '3', name: '3', threat_level: 'CRITICAL' as any, rank: 1 } as ThreatActor,
+        { actor_id: '4', name: '4', threat_level: 'HIGH' as any, rank: 1 } as ThreatActor,
+        { actor_id: '5', name: '5', threat_level: 'LOW' as any, rank: 1 } as ThreatActor,
       ];
 
       const sorted = sortByPriority(unsorted);
@@ -180,8 +180,8 @@ describe('Threat Actor Domain Logic', () => {
 
     it('should handle missing rank (default to 999)', () => {
       const actors: ThreatActor[] = [
-        { actor_id: '1', threat_level: 'CRITICAL', rank: 1 } as ThreatActor,
-        { actor_id: '2', threat_level: 'CRITICAL' } as ThreatActor,
+        { actor_id: '1', name: '1', threat_level: 'CRITICAL' as any, rank: 1 } as ThreatActor,
+        { actor_id: '2', name: '2', threat_level: 'CRITICAL' as any } as ThreatActor,
       ];
 
       const sorted = sortByPriority(actors);
@@ -192,8 +192,8 @@ describe('Threat Actor Domain Logic', () => {
 
     it('should handle unknown threat levels', () => {
       const actors: ThreatActor[] = [
-        { actor_id: '1', threat_level: 'CRITICAL' } as ThreatActor,
-        { actor_id: '2', threat_level: 'UNKNOWN' as any } as ThreatActor,
+        { actor_id: '1', name: '1', threat_level: 'CRITICAL' as any } as ThreatActor,
+        { actor_id: '2', name: '2', threat_level: 'UNKNOWN' as any } as ThreatActor,
       ];
 
       const sorted = sortByPriority(actors);

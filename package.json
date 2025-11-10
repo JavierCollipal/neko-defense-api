@@ -11,9 +11,15 @@
     "start:prod": "node dist/main",
     "migrate:dina": "ts-node src/dina-army-list/scripts/migrate-dina-agents.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "type-check": "tsc --noEmit",
     "test": "jest",
+    "test:unit": "jest --testPathIgnorePatterns=.functional.spec.ts",
+    "test:integration": "jest --testPathPattern=.functional.spec.ts",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "test:cov:unit": "jest --coverage --testPathIgnorePatterns=.functional.spec.ts",
+    "test:cov:integration": "jest --coverage --testPathPattern=.functional.spec.ts"
   },
   "keywords": [],
   "author": "",

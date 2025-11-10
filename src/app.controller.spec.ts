@@ -11,6 +11,15 @@ describe('AppController', () => {
     getThreatActorsByCategory: jest.fn(),
   };
 
+  const mockDatabaseConnection = {
+    db: {
+      stats: jest.fn(),
+      admin: jest.fn(),
+      listCollections: jest.fn(),
+      collection: jest.fn(),
+    },
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -18,6 +27,10 @@ describe('AppController', () => {
         {
           provide: ThreatActorsService,
           useValue: mockThreatActorsService,
+        },
+        {
+          provide: 'DatabaseConnection',
+          useValue: mockDatabaseConnection,
         },
       ],
     }).compile();

@@ -86,7 +86,7 @@ describe('🔐 AuthResolver', () => {
 
       await resolver.login(mockLoginInput);
 
-      expect(authService.login).toHaveBeenCalledWith('testuser', 'testpass123');
+      expect(authService.login).toHaveBeenCalledWith('testuser', 'testpass123', 'en');
       expect(authService.login).toHaveBeenCalledTimes(1);
     });
 

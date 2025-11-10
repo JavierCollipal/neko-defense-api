@@ -194,13 +194,14 @@ describe('🔐 AuthService', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwtService.sign as jest.Mock).mockReturnValue('mock.jwt.token');
 
-      const result = await service.login('testadmin', 'testpassword123');
+      const result = await service.login('testadmin', 'testpassword123', 'en');
 
       expect(result).toEqual({
         access_token: 'mock.jwt.token',
         user: {
           username: 'testadmin',
           role: 'admin',
+          language: 'en',
         },
       });
     });
@@ -231,11 +232,12 @@ describe('🔐 AuthService', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwtService.sign as jest.Mock).mockReturnValue('mock.jwt.token');
 
-      await service.login('testadmin', 'testpassword123');
+      await service.login('testadmin', 'testpassword123', 'en');
 
       expect(jwtService.sign).toHaveBeenCalledWith({
         username: 'testadmin',
         role: 'admin',
+        language: 'en',
       });
     });
 

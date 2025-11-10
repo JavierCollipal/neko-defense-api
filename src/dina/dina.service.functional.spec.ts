@@ -185,16 +185,14 @@ describe('DinaServiceFunctional', () => {
       expect(mockConnection.collection).toHaveBeenCalledWith('dina_agents_comprehensive');
     });
 
-    it('should return empty array on error', async () => {
+    it('should throw error on database failure', async () => {
       mockConnection.collection.mockReturnValue({
         find: jest.fn().mockReturnValue({
           toArray: jest.fn().mockRejectedValue(new Error('DB Error')),
         }),
       });
 
-      const agents = await service.getComprehensiveAgents();
-
-      expect(agents).toEqual([]);
+      await expect(service.getComprehensiveAgents()).rejects.toThrow();
     });
   });
 
@@ -228,16 +226,14 @@ describe('DinaServiceFunctional', () => {
       });
     });
 
-    it('should return empty array on error', async () => {
+    it('should throw error on database failure', async () => {
       mockConnection.collection.mockReturnValue({
         find: jest.fn().mockReturnValue({
           toArray: jest.fn().mockRejectedValue(new Error('DB Error')),
         }),
       });
 
-      const wanted = await service.getWantedAgents();
-
-      expect(wanted).toEqual([]);
+      await expect(service.getWantedAgents()).rejects.toThrow();
     });
   });
 
@@ -260,14 +256,12 @@ describe('DinaServiceFunctional', () => {
       expect(summary).toBeNull();
     });
 
-    it('should return null on error', async () => {
+    it('should throw error on database failure', async () => {
       mockConnection.collection.mockReturnValue({
         findOne: jest.fn().mockRejectedValue(new Error('DB Error')),
       });
 
-      const summary = await service.getResearchSummary();
-
-      expect(summary).toBeNull();
+      await expect(service.getResearchSummary()).rejects.toThrow();
     });
   });
 
